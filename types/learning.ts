@@ -1,21 +1,68 @@
-export type LearningStatus =
+export type GoalType =
+  | "certification"
+  | "project"
+  | "capability";
+
+export type GoalStatus =
   | "planned"
   | "in-progress"
-  | "reading"
-  | "complete";
+  | "paused"
+  | "completed";
 
-export type LearningType =
-  | "certification"
+export type FundingType =
+  | "self"
+  | "employer"
+  | "learning-budget"
+  | "free";
+
+export interface LearningGoal {
+  id: string;
+  title: string;
+  type: GoalType;
+  status: GoalStatus;
+
+  startDate?: string;
+  targetDate?: string;
+  completionDate?: string;
+
+  notes?: string[];
+  links?: string[];
+
+  cost?: number;
+  fundingType?: FundingType;
+
+  tags?: string[];
+}
+
+export type ActivityType =
+  | "module"
   | "course"
   | "book"
   | "article"
-  | "project";
+  | "lab"
+  | "revision"
+  | "exam"
+  | "project-step"
+  | "task";
 
-export interface LearningItem {
+export type ActivityStatus =
+  | "planned"
+  | "in-progress"
+  | "blocked"
+  | "completed";
+
+export interface LearningActivity {
   id: string;
+  goalId: string;
   title: string;
-  type: LearningType;
-  status: LearningStatus;
-  provider?: string;
+  type: ActivityType;
+  status: ActivityStatus;
+
+  startDate?: string;
   targetDate?: string;
+  completionDate?: string;
+
+  notes?: string[];
+  links?: string[];
+  tags?: string[];
 }

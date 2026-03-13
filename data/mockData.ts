@@ -1,25 +1,109 @@
-import { LearningItem } from "../types/learning";
+import { LearningActivity, LearningGoal } from "../types/learning";
 
-export const mockItems: LearningItem[] = [
+export const mockGoals: LearningGoal[] = [
   {
-    id: "1",
-    title: "AWS Solutions Architect Associate",
+    id: "goal-1",
+    title: "AWS Architect",
     type: "certification",
     status: "in-progress",
-    provider: "AWS"
+    startDate: "2026-01-01",
+    targetDate: "2026-06-30",
+    fundingType: "self",
+    tags: ["cloud", "infrastructure", "security", "iam"],
+    notes: ["Focus on networking, IAM and architecture patterns"],
+    links: ["https://aws.amazon.com/certification/"],
   },
   {
-    id: "2",
-    title: "MuleSoft Developer Level 1",
+    id: "goal-2",
+    title: "MuleSoft Developer",
     type: "certification",
     status: "planned",
-    provider: "MuleSoft"
+    targetDate: "2026-09-30",
+    fundingType: "employer",
+    tags: ["integrations", "apis", "architecture"],
   },
   {
-    id: "3",
-    title: "Designing Data Intensive Applications",
-    type: "book",
-    status: "reading",
-    provider: "O'Reilly"
-  }
+    id: "goal-3",
+    title: "MuleSoft Platform Architect",
+    type: "certification",
+    status: "planned",
+    targetDate: "2026-12-31",
+    fundingType: "employer",
+    tags: ["integrations", "apis", "architecture"],
+  },
+  {
+    id: "goal-4",
+    title: "Build Dev Tracker into a usable production-style app",
+    type: "project",
+    status: "in-progress",
+    startDate: "2026-03-01",
+    tags: ["programming", "devops", "data", "architecture"],
+    notes: ["Build iteratively through weekly releases"],
+  },
+  {
+    id: "goal-5",
+    title: "Build a second app to deepen integration and deployment skills",
+    type: "project",
+    status: "planned",
+    tags: ["programming", "integrations", "devops"],
+  },
+];
+
+export const mockActivities: LearningActivity[] = [
+  {
+    id: "activity-1",
+    goalId: "goal-1",
+    title: "Complete IAM module",
+    type: "module",
+    status: "completed",
+    tags: ["iam", "security"],
+  },
+  {
+    id: "activity-2",
+    goalId: "goal-1",
+    title: "Complete VPC module",
+    type: "module",
+    status: "in-progress",
+    tags: ["cloud", "infrastructure"],
+  },
+  {
+    id: "activity-3",
+    goalId: "goal-1",
+    title: "Revision",
+    type: "revision",
+    status: "planned",
+    tags: ["cloud", "architecture"],
+  },
+  {
+    id: "activity-4",
+    goalId: "goal-1",
+    title: "Pass exam",
+    type: "exam",
+    status: "planned",
+    tags: ["cloud"],
+  },
+  {
+    id: "activity-5",
+    goalId: "goal-4",
+    title: "Release 0 scaffold Expo app",
+    type: "project-step",
+    status: "completed",
+    tags: ["programming"],
+  },
+  {
+    id: "activity-6",
+    goalId: "goal-4",
+    title: "Release 1 reusable component structure",
+    type: "project-step",
+    status: "completed",
+    tags: ["programming", "architecture"],
+  },
+  {
+    id: "activity-7",
+    goalId: "goal-4",
+    title: "Release 2 add item flow",
+    type: "project-step",
+    status: "in-progress",
+    tags: ["programming", "ui"],
+  },
 ];

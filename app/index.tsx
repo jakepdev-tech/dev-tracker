@@ -1,6 +1,7 @@
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Link } from "expo-router";
+import { SafeAreaView, ScrollView, StyleSheet, Text } from "react-native";
 import LearningItemCard from "../components/LearningItemCard";
-import { mockItems } from "../data/mockData";
+import { mockGoals } from "../data/mockData";
 
 export default function Index() {
   return (
@@ -8,20 +9,18 @@ export default function Index() {
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.title}>Dev Tracker</Text>
         <Text style={styles.subtitle}>
-          Track certifications, courses, reading and projects.
+          Track certifications, projects, domain upskilling and technical goals.
         </Text>
 
-        <View style={styles.summaryCard}>
-          <Text style={styles.summaryTitle}>This Week</Text>
-          <Text style={styles.summaryText}>3 active learning items</Text>
-          <Text style={styles.summaryText}>1 project in progress</Text>
-        </View>
+        <Link href="/add" style={styles.addButton}>
+          Add Learning Goal
+        </Link>
 
-        <Text style={styles.sectionTitle}>Current Items</Text>
+        <Text style={styles.sectionTitle}>Current Goals</Text>
 
-  {mockItems.map((item) => (
-  <LearningItemCard key={item.id} item={item} />
-))}
+        {mockGoals.map((goal) => (
+          <LearningItemCard key={goal.id} item={goal} />
+        ))}
       </ScrollView>
     </SafeAreaView>
   );
@@ -47,21 +46,14 @@ const styles = StyleSheet.create({
     color: "#cbd5e1",
     marginBottom: 8,
   },
-  summaryCard: {
-    backgroundColor: "#1e293b",
-    borderRadius: 16,
-    padding: 16,
-  },
-  summaryTitle: {
-    fontSize: 18,
+  addButton: {
+    backgroundColor: "#38bdf8",
+    color: "#0f172a",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
     fontWeight: "600",
-    color: "#f8fafc",
-    marginBottom: 8,
-  },
-  summaryText: {
-    fontSize: 14,
-    color: "#cbd5e1",
-    marginBottom: 4,
+    textAlign: "center",
   },
   sectionTitle: {
     fontSize: 20,
@@ -69,21 +61,5 @@ const styles = StyleSheet.create({
     color: "#f8fafc",
     marginTop: 8,
     marginBottom: 4,
-  },
-  itemCard: {
-    backgroundColor: "#1e293b",
-    borderRadius: 16,
-    padding: 16,
-  },
-  itemTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#f8fafc",
-    marginBottom: 8,
-  },
-  itemMeta: {
-    fontSize: 14,
-    color: "#cbd5e1",
-    marginBottom: 2,
   },
 });

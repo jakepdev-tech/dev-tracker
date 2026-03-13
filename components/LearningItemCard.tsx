@@ -1,8 +1,8 @@
 import { StyleSheet, Text, View } from "react-native";
-import { LearningItem } from "../types/learning";
+import { LearningGoal } from "../types/learning";
 
 type Props = {
-  item: LearningItem;
+  item: LearningGoal;
 };
 
 export default function LearningItemCard({ item }: Props) {
@@ -11,6 +11,18 @@ export default function LearningItemCard({ item }: Props) {
       <Text style={styles.title}>{item.title}</Text>
       <Text style={styles.meta}>Type: {item.type}</Text>
       <Text style={styles.meta}>Status: {item.status}</Text>
+
+      {item.targetDate ? (
+        <Text style={styles.meta}>Target: {item.targetDate}</Text>
+      ) : null}
+
+      {item.fundingType ? (
+        <Text style={styles.meta}>Funding: {item.fundingType}</Text>
+      ) : null}
+
+      {item.tags && item.tags.length > 0 ? (
+        <Text style={styles.meta}>Tags: {item.tags.join(", ")}</Text>
+      ) : null}
     </View>
   );
 }
