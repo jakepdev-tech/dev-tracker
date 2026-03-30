@@ -1,13 +1,13 @@
-export type GoalType =
-  | "certification"
-  | "project"
-  | "capability";
-
 export type GoalStatus =
   | "planned"
   | "in-progress"
   | "paused"
   | "completed";
+
+export type GoalType =
+  | "certification"
+  | "project"
+  | "capability";
 
 export type FundingType =
   | "self"
@@ -15,9 +15,46 @@ export type FundingType =
   | "learning-budget"
   | "free";
 
+export type ActivityStatus =
+  | "planned"
+  | "todo"
+  | "in-progress"
+  | "completed";
+
+export type ActivityType =
+  | "module"
+  | "revision"
+  | "exam"
+  | "project-step"
+  | "reading"
+  | "practice"
+  | "other";
+
+export interface Activity {
+  id: string;
+  goalId: string;
+
+  title: string;
+  description?: string;
+
+  type?: ActivityType;
+  status: ActivityStatus;
+
+  startDate?: string;
+  targetDate?: string;
+  completionDate?: string;
+
+  notes?: string;
+  links?: string[];
+  tags?: string[];
+}
+
 export interface LearningGoal {
   id: string;
+
   title: string;
+  description?: string;
+
   type: GoalType;
   status: GoalStatus;
 
@@ -25,44 +62,9 @@ export interface LearningGoal {
   targetDate?: string;
   completionDate?: string;
 
-  notes?: string[];
-  links?: string[];
-
-  cost?: number;
   fundingType?: FundingType;
 
-  tags?: string[];
-}
-
-export type ActivityType =
-  | "module"
-  | "course"
-  | "book"
-  | "article"
-  | "lab"
-  | "revision"
-  | "exam"
-  | "project-step"
-  | "task";
-
-export type ActivityStatus =
-  | "planned"
-  | "in-progress"
-  | "blocked"
-  | "completed";
-
-export interface LearningActivity {
-  id: string;
-  goalId: string;
-  title: string;
-  type: ActivityType;
-  status: ActivityStatus;
-
-  startDate?: string;
-  targetDate?: string;
-  completionDate?: string;
-
-  notes?: string[];
+  notes?: string;
   links?: string[];
   tags?: string[];
 }

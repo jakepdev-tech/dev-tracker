@@ -1,9 +1,13 @@
 import { Link } from "expo-router";
 import { SafeAreaView, ScrollView, StyleSheet, Text } from "react-native";
 import LearningItemCard from "../components/LearningItemCard";
-import { mockGoals } from "../data/mockData";
+import { useGoals } from "../state/GoalContext";
+import { colors } from "../theme/theme";
+import { calculateProgress } from "../utils/progress";
 
 export default function Index() {
+  const { goals, activities } = useGoals();
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
@@ -18,9 +22,17 @@ export default function Index() {
 
         <Text style={styles.sectionTitle}>Current Goals</Text>
 
-        {mockGoals.map((goal) => (
-          <LearningItemCard key={goal.id} item={goal} />
-        ))}
+        {goals.map((goal) => {
+          const progress = calculateProgress(activities, goal.id);
+
+          return (
+            <LearningItemCard
+              key={goal.id}
+              item={goal}
+              progress={progress}
+            />
+          );
+        })}
       </ScrollView>
     </SafeAreaView>
   );
@@ -29,7 +41,7 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f172a",
+    backgroundColor: colors.primary,
   },
   content: {
     padding: 20,
@@ -38,17 +50,17 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: "700",
-    color: "#f8fafc",
+    color: colors.textPrimary,
     marginTop: 12,
   },
   subtitle: {
     fontSize: 16,
-    color: "#cbd5e1",
+    color: colors.textSecondary,
     marginBottom: 8,
   },
   addButton: {
-    backgroundColor: "#38bdf8",
-    color: "#0f172a",
+    backgroundColor: colors.primary,
+    color: colors.textPrimary,
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 12,
@@ -58,7 +70,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#f8fafc",
+    color: colors.textPrimary,
     marginTop: 8,
     marginBottom: 4,
   },
