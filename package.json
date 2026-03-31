@@ -8,7 +8,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "verify:data-model": "tsc -p tsconfig.verify.json && node .verify-dist/tests/data-model.test.js"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

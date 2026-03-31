@@ -1,70 +1,69 @@
 export type GoalStatus =
   | "planned"
   | "in-progress"
-  | "paused"
+  | "blocked"
   | "completed";
 
 export type GoalType =
   | "certification"
   | "project"
-  | "capability";
+  | "capability"
+  | "domain";
 
-export type FundingType =
-  | "self"
-  | "employer"
-  | "learning-budget"
-  | "free";
-
-export type ActivityStatus =
-  | "planned"
-  | "todo"
+export type TaskStatus =
+  | "not-started"
   | "in-progress"
+  | "blocked"
   | "completed";
 
-export type ActivityType =
-  | "module"
-  | "revision"
-  | "exam"
-  | "project-step"
-  | "reading"
-  | "practice"
-  | "other";
-
-export interface Activity {
+export interface GoalTask {
   id: string;
   goalId: string;
-
   title: string;
-  description?: string;
-
-  type?: ActivityType;
-  status: ActivityStatus;
-
+  details?: string;
+  status: TaskStatus;
+  progress: number;
+  weight: number;
+  evidence?: string;
+  tags: string[];
   startDate?: string;
   targetDate?: string;
   completionDate?: string;
-
-  notes?: string;
-  links?: string[];
-  tags?: string[];
+  sortOrder: number;
 }
 
 export interface LearningGoal {
   id: string;
-
   title: string;
   description?: string;
-
   type: GoalType;
   status: GoalStatus;
-
   startDate?: string;
   targetDate?: string;
   completionDate?: string;
-
-  fundingType?: FundingType;
-
   notes?: string;
-  links?: string[];
-  tags?: string[];
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
 }
+
+export interface TrackerData {
+  goals: LearningGoal[];
+  tasks: GoalTask[];
+}
+
+export interface TrackerStorageEnvelope {
+  schemaVersion: number;
+  data: TrackerData;
+}
+
+export interface ValidationResult {
+  valid: boolean;
+  errors: string[];
+}
+
+export type GoalSortOption =
+  | "updated-desc"
+  | "target-asc"
+  | "progress-desc"
+  | "title-asc";

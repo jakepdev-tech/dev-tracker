@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "Node16",
+    "moduleResolution": "node16",
+    "target": "es2020",
+    "outDir": ".verify-dist",
+    "noEmit": false,
+    "types": ["node"]
+  },
+  "include": [
+    "tests/**/*.ts",
+    "data/mockData.ts",
+    "state/goalDraft.ts",
+    "state/trackerModel.ts",
+    "types/learning.ts",
+    "utils/progress.ts"
+  ]
+}
