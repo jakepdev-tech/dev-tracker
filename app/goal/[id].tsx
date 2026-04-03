@@ -1,11 +1,25 @@
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useGoals } from "../../state/GoalContext";
+import { colors, gradients } from "../../theme/theme";
 import {
   calculateGoalProgress,
   calculateTaskWeightTotal,
   getGoalTasks,
 } from "../../utils/progress";
+
+function statusTheme(status: string) {
+  switch (status) {
+    case "completed":
+      return { background: "#E6F6EC", text: colors.success };
+    case "blocked":
+      return { background: "#FDEBEA", text: colors.danger };
+    case "in-progress":
+      return { background: "#E8F1FF", text: colors.info };
+    default:
+      return { background: "#FFF4DE", text: colors.warning };
+  }
+}
 
 export default function GoalDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -25,6 +39,7 @@ export default function GoalDetailScreen() {
   const goalTasks = getGoalTasks(tasks, goal.id);
   const progress = calculateGoalProgress(tasks, goal.id);
   const totalWeight = calculateTaskWeightTotal(tasks, goal.id);
+  const goalStatusTheme = statusTheme(goal.status);
 
   function confirmDelete() {
     Alert.alert(
@@ -48,20 +63,33 @@ export default function GoalDetailScreen() {
     <>
       <Stack.Screen options={{ title: goal.title }} />
       <SafeAreaView style={styles.container}>
-        <ScrollView contentContainerStyle={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={styles.heroCard}>
             <Text style={styles.title}>{goal.title}</Text>
+            <View style={[styles.goalBadge, { backgroundColor: goalStatusTheme.background }]}>
+              <Text style={[styles.goalBadgeText, { color: goalStatusTheme.text }]}>
+                {goal.status.replace("-", " ")}
+              </Text>
+            </View>
             <Text style={styles.subtitle}>{goal.description ?? "No description yet."}</Text>
-            <View style={styles.metaRow}>
-              <Meta label="Type" value={goal.type} />
-              <Meta label="Status" value={goal.status} />
-              <Meta label="Progress" value={`${progress}%`} />
-              <Meta label="Task weight" value={`${totalWeight}%`} />
+            <View style={styles.progressRow}>
+              <View style={styles.progressTrack}>
+                <View style={[styles.progressFill, { width: `${progress}%` }]} />
+              </View>
+              <Text style={styles.progressLabel}>{progress}%</Text>
             </View>
-            <View style={styles.progressTrack}>
-              <View style={[styles.progressFill, { width: `${progress}%` }]} />
-            </View>
-            <Text style={styles.tags}>Tags: {goal.tags.join(", ") || "None"}</Text>
+            <Text style={styles.tags}>{goal.tags.join(" • ") || "No tags"}</Text>
+          </View>
+
+          <View style={styles.metaRow}>
+            <Meta label="Type" value={goal.type} />
+            <Meta label="Progress" value={`${progress}%`} />
+            <Meta label="Task weight" value={`${totalWeight}%`} />
+            <Meta label="Target" value={goal.targetDate ?? "None"} />
+          </View>
+
+          <View style={styles.notesCard}>
+            <Text style={styles.sectionTitle}>Notes</Text>
             <Text style={styles.notes}>{goal.notes ?? "No notes yet."}</Text>
           </View>
 
@@ -80,29 +108,38 @@ export default function GoalDetailScreen() {
             </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>Tasks</Text>
+          <Text style={styles.sectionTitle}>Activities</Text>
 
-          {goalTasks.map((task) => (
-            <View key={task.id} style={styles.taskCard}>
-              <View style={styles.taskHeader}>
-                <Text style={styles.taskTitle}>{task.title}</Text>
-                <Text style={styles.taskStatus}>{task.status.replace("-", " ")}</Text>
+          {goalTasks.map((task) => {
+            const theme = statusTheme(task.status);
+
+            return (
+              <View key={task.id} style={styles.taskCard}>
+                <View style={styles.taskHeader}>
+                  <Text style={styles.taskTitle}>{task.title}</Text>
+                  <Text style={[styles.taskStatus, { color: theme.text }]}>
+                    {task.status.replace("-", " ")}
+                  </Text>
+                </View>
+                {task.details ? <Text style={styles.taskBody}>{task.details}</Text> : null}
+                <View style={styles.taskProgressRow}>
+                  <View style={styles.taskProgressTrack}>
+                    <View
+                      style={[
+                        styles.taskProgressFill,
+                        { width: `${task.progress}%`, backgroundColor: theme.text },
+                      ]}
+                    />
+                  </View>
+                  <Text style={styles.taskMeta}>{task.progress}%</Text>
+                </View>
+                <Text style={styles.taskMeta}>{task.weight}% of goal</Text>
+                {task.targetDate ? <Text style={styles.taskMeta}>Target {task.targetDate}</Text> : null}
+                {task.evidence ? <Text style={styles.taskBody}>Evidence: {task.evidence}</Text> : null}
+                {task.tags.length > 0 ? <Text style={styles.taskMeta}>Tags: {task.tags.join(", ")}</Text> : null}
               </View>
-              {task.details ? <Text style={styles.taskBody}>{task.details}</Text> : null}
-              <Text style={styles.taskMeta}>
-                {task.progress}% progress • {task.weight}% of goal
-              </Text>
-              {task.targetDate ? (
-                <Text style={styles.taskMeta}>Target {task.targetDate}</Text>
-              ) : null}
-              {task.evidence ? (
-                <Text style={styles.taskBody}>Evidence: {task.evidence}</Text>
-              ) : null}
-              {task.tags.length > 0 ? (
-                <Text style={styles.taskMeta}>Tags: {task.tags.join(", ")}</Text>
-              ) : null}
-            </View>
-          ))}
+            );
+          })}
 
           {goalTasks.length === 0 ? (
             <Text style={styles.emptyText}>No tasks yet. Edit the goal to add them.</Text>
@@ -125,27 +162,68 @@ function Meta({ label, value }: { label: string; value: string }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f172a",
+    backgroundColor: colors.page,
   },
   content: {
     padding: 18,
     gap: 16,
+    paddingBottom: 32,
   },
   heroCard: {
-    backgroundColor: "#14213d",
-    borderRadius: 22,
-    padding: 18,
-    gap: 12,
+    backgroundColor: gradients.headerBottom,
+    borderRadius: 28,
+    padding: 20,
+    gap: 10,
   },
   title: {
-    color: "#f8fafc",
-    fontSize: 28,
+    color: "#FFFFFF",
+    fontSize: 29,
     fontWeight: "800",
   },
+  goalBadge: {
+    alignSelf: "flex-start",
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+  },
+  goalBadgeText: {
+    fontSize: 12,
+    fontWeight: "700",
+    textTransform: "capitalize",
+  },
   subtitle: {
-    color: "#cbd5e1",
+    color: "#D7E2F8",
     fontSize: 15,
     lineHeight: 22,
+  },
+  progressRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginTop: 4,
+  },
+  progressTrack: {
+    flex: 1,
+    height: 10,
+    backgroundColor: "rgba(255,255,255,0.18)",
+    borderRadius: 999,
+    overflow: "hidden",
+  },
+  progressFill: {
+    height: "100%",
+    backgroundColor: colors.success,
+    borderRadius: 999,
+  },
+  progressLabel: {
+    width: 38,
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontWeight: "700",
+    textAlign: "right",
+  },
+  tags: {
+    color: "#D7E2F8",
+    fontSize: 13,
   },
   metaRow: {
     flexDirection: "row",
@@ -155,38 +233,39 @@ const styles = StyleSheet.create({
   metaCard: {
     minWidth: "47%",
     flexGrow: 1,
-    backgroundColor: "#101a31",
-    borderRadius: 14,
-    padding: 12,
+    backgroundColor: colors.card,
+    borderRadius: 20,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: colors.line,
     gap: 4,
   },
   metaLabel: {
-    color: "#94a3b8",
+    color: colors.inkSoft,
     fontSize: 12,
+    fontWeight: "600",
   },
   metaValue: {
-    color: "#f8fafc",
+    color: colors.ink,
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: "800",
     textTransform: "capitalize",
   },
-  progressTrack: {
-    height: 10,
-    backgroundColor: "#273759",
-    borderRadius: 999,
-    overflow: "hidden",
+  notesCard: {
+    backgroundColor: colors.card,
+    borderRadius: 22,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.line,
+    gap: 10,
   },
-  progressFill: {
-    height: "100%",
-    backgroundColor: "#60a5fa",
-    borderRadius: 999,
-  },
-  tags: {
-    color: "#cbd5e1",
-    fontSize: 14,
+  sectionTitle: {
+    color: colors.ink,
+    fontSize: 21,
+    fontWeight: "800",
   },
   notes: {
-    color: "#94a3b8",
+    color: colors.inkSoft,
     fontSize: 14,
     lineHeight: 21,
   },
@@ -197,27 +276,24 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     flex: 1,
-    backgroundColor: "#60a5fa",
-    color: "#0f172a",
+    backgroundColor: colors.primary,
+    color: "#FFFFFF",
     paddingVertical: 13,
     textAlign: "center",
-    borderRadius: 14,
+    borderRadius: 16,
     fontWeight: "800",
   },
   deleteButton: {
-    color: "#f87171",
+    color: colors.danger,
     fontWeight: "700",
   },
-  sectionTitle: {
-    color: "#f8fafc",
-    fontSize: 22,
-    fontWeight: "800",
-  },
   taskCard: {
-    backgroundColor: "#14213d",
-    borderRadius: 18,
+    backgroundColor: colors.card,
+    borderRadius: 22,
     padding: 16,
-    gap: 6,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: colors.line,
   },
   taskHeader: {
     flexDirection: "row",
@@ -226,31 +302,47 @@ const styles = StyleSheet.create({
   },
   taskTitle: {
     flex: 1,
-    color: "#f8fafc",
+    color: colors.ink,
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: "800",
   },
   taskStatus: {
-    color: "#60a5fa",
     fontSize: 13,
+    fontWeight: "700",
     textTransform: "capitalize",
   },
   taskBody: {
-    color: "#cbd5e1",
+    color: colors.inkSoft,
     fontSize: 14,
     lineHeight: 20,
   },
+  taskProgressRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  taskProgressTrack: {
+    flex: 1,
+    height: 9,
+    backgroundColor: "#E7ECF7",
+    borderRadius: 999,
+    overflow: "hidden",
+  },
+  taskProgressFill: {
+    height: "100%",
+    borderRadius: 999,
+  },
   taskMeta: {
-    color: "#94a3b8",
+    color: colors.inkSoft,
     fontSize: 13,
   },
   emptyText: {
-    color: "#94a3b8",
+    color: colors.inkSoft,
     fontSize: 14,
     textAlign: "center",
   },
   notFound: {
-    color: "#f8fafc",
+    color: colors.ink,
     textAlign: "center",
     marginTop: 40,
   },

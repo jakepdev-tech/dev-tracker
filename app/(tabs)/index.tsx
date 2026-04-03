@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import LearningItemCard from "../../components/LearningItemCard";
 import { useGoals } from "../../state/GoalContext";
+import { colors, gradients } from "../../theme/theme";
 import { GoalSortOption, LearningGoal } from "../../types/learning";
 import {
   calculateGoalProgress,
@@ -70,14 +71,20 @@ export default function DashboardScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.hero}>
+          <View style={styles.heroBackdrop} />
+          <Text style={styles.eyebrow}>Technical Development</Text>
           <Text style={styles.title}>Dev Tracker</Text>
           <Text style={styles.subtitle}>
-            Track goals, weighted tasks, evidence, and domain progress from Expo Go.
+            Track your goals, task weighting, evidence, and delivery progress in one
+            place.
           </Text>
           <Link href="/goal-form" style={styles.primaryButton}>
-            Add Goal
+            + Add Goal
           </Link>
         </View>
 
@@ -88,58 +95,51 @@ export default function DashboardScreen() {
           <StatCard label="Tasks" value={String(summary.totalTasks)} />
         </View>
 
-        <View style={styles.filters}>
+        <View style={styles.panel}>
+          <Text style={styles.panelTitle}>Filters</Text>
           <TextInput
             value={query}
             onChangeText={setQuery}
             placeholder="Search titles, descriptions, tags"
-            placeholderTextColor="#64748b"
+            placeholderTextColor={colors.inkMuted}
             style={styles.searchInput}
           />
 
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={styles.filterRow}>
-              {STATUSES.map((status) => (
-                <FilterChip
-                  key={status}
-                  label={status}
-                  selected={statusFilter === status}
-                  onPress={() => setStatusFilter(status)}
-                />
-              ))}
-            </View>
-          </ScrollView>
+          <FilterSection label="Status">
+            {STATUSES.map((status) => (
+              <FilterChip
+                key={status}
+                label={status}
+                selected={statusFilter === status}
+                onPress={() => setStatusFilter(status)}
+              />
+            ))}
+          </FilterSection>
 
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={styles.filterRow}>
-              {tags.map((tag) => (
-                <FilterChip
-                  key={tag}
-                  label={tag}
-                  selected={tagFilter === tag}
-                  onPress={() => setTagFilter(tag)}
-                />
-              ))}
-            </View>
-          </ScrollView>
+          <FilterSection label="Tags">
+            {tags.map((tag) => (
+              <FilterChip
+                key={tag}
+                label={tag}
+                selected={tagFilter === tag}
+                onPress={() => setTagFilter(tag)}
+              />
+            ))}
+          </FilterSection>
 
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={styles.filterRow}>
-              {SORT_OPTIONS.map((option) => (
-                <FilterChip
-                  key={option}
-                  label={option}
-                  selected={sortOption === option}
-                  onPress={() => setSortOption(option)}
-                />
-              ))}
-            </View>
-          </ScrollView>
+          <FilterSection label="Sort">
+            {SORT_OPTIONS.map((option) => (
+              <FilterChip
+                key={option}
+                label={option}
+                selected={sortOption === option}
+                onPress={() => setSortOption(option)}
+              />
+            ))}
+          </FilterSection>
         </View>
 
-        {!hydrated ? (
-          <Text style={styles.helperText}>Loading saved data...</Text>
-        ) : null}
+        {!hydrated ? <Text style={styles.helperText}>Loading saved data...</Text> : null}
 
         {filteredGoals.map((goal) => (
           <LearningItemCard
@@ -155,6 +155,23 @@ export default function DashboardScreen() {
         ) : null}
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function FilterSection({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <View style={styles.filterSection}>
+      <Text style={styles.filterLabel}>{label}</Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <View style={styles.filterRow}>{children}</View>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -186,36 +203,57 @@ function StatCard({ label, value }: { label: string; value: string }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f172a",
+    backgroundColor: colors.page,
   },
   content: {
     padding: 18,
     gap: 16,
+    paddingBottom: 36,
   },
   hero: {
-    backgroundColor: "#14213d",
-    borderRadius: 24,
-    padding: 20,
+    backgroundColor: gradients.headerBottom,
+    borderRadius: 30,
+    padding: 22,
     gap: 10,
+    overflow: "hidden",
+  },
+  heroBackdrop: {
+    position: "absolute",
+    top: -40,
+    right: -10,
+    width: 180,
+    height: 180,
+    borderRadius: 999,
+    backgroundColor: "rgba(255,255,255,0.08)",
+  },
+  eyebrow: {
+    color: "#D6E3FF",
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 1,
+    textTransform: "uppercase",
   },
   title: {
-    color: "#f8fafc",
-    fontSize: 30,
+    color: "#FFFFFF",
+    fontSize: 31,
     fontWeight: "800",
   },
   subtitle: {
-    color: "#cbd5e1",
+    color: "#D7E2F8",
     fontSize: 15,
     lineHeight: 22,
+    maxWidth: "92%",
   },
   primaryButton: {
-    backgroundColor: "#60a5fa",
-    color: "#0f172a",
+    alignSelf: "flex-start",
+    backgroundColor: colors.primary,
+    color: "#FFFFFF",
     paddingVertical: 12,
-    borderRadius: 14,
+    paddingHorizontal: 18,
+    borderRadius: 16,
     textAlign: "center",
     fontWeight: "700",
-    marginTop: 6,
+    marginTop: 8,
   },
   summaryRow: {
     flexDirection: "row",
@@ -225,39 +263,59 @@ const styles = StyleSheet.create({
   statCard: {
     flexGrow: 1,
     minWidth: "47%",
-    backgroundColor: "#14213d",
-    borderRadius: 18,
+    backgroundColor: colors.card,
+    borderRadius: 20,
     padding: 16,
-    gap: 4,
+    borderWidth: 1,
+    borderColor: colors.line,
   },
   statValue: {
-    color: "#f8fafc",
-    fontSize: 24,
+    color: colors.ink,
+    fontSize: 26,
     fontWeight: "800",
   },
   statLabel: {
-    color: "#94a3b8",
+    color: colors.inkSoft,
     fontSize: 13,
+    marginTop: 4,
   },
-  filters: {
-    gap: 10,
+  panel: {
+    backgroundColor: colors.card,
+    borderRadius: 24,
+    padding: 16,
+    gap: 14,
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  panelTitle: {
+    color: colors.ink,
+    fontSize: 20,
+    fontWeight: "800",
   },
   searchInput: {
-    backgroundColor: "#14213d",
-    color: "#f8fafc",
-    borderRadius: 14,
+    backgroundColor: colors.cardMuted,
+    color: colors.ink,
+    borderRadius: 16,
     paddingHorizontal: 14,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: "#223154",
+    borderColor: colors.line,
+  },
+  filterSection: {
+    gap: 8,
+  },
+  filterLabel: {
+    color: colors.inkSoft,
+    fontSize: 13,
+    fontWeight: "700",
   },
   filterRow: {
     flexDirection: "row",
     gap: 8,
   },
   chip: {
-    color: "#cbd5e1",
-    backgroundColor: "#16233f",
+    color: colors.inkSoft,
+    backgroundColor: colors.cardMuted,
     borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -265,11 +323,11 @@ const styles = StyleSheet.create({
     textTransform: "capitalize",
   },
   chipSelected: {
-    backgroundColor: "#2563eb",
-    color: "#f8fafc",
+    backgroundColor: colors.primaryLight,
+    color: colors.primaryDark,
   },
   helperText: {
-    color: "#94a3b8",
+    color: colors.inkSoft,
     fontSize: 14,
     textAlign: "center",
     marginTop: 4,

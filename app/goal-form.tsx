@@ -19,6 +19,7 @@ import {
 } from "../state/goalDraft";
 import { useGoals } from "../state/GoalContext";
 import { validateGoalPayload } from "../state/storage";
+import { colors, gradients } from "../theme/theme";
 import { GoalTask, LearningGoal } from "../types/learning";
 import { getTaskStatusFromProgress } from "../utils/progress";
 
@@ -59,8 +60,7 @@ export default function GoalFormScreen() {
   }, [existingGoal, existingTasks]);
 
   const totalWeight = useMemo(
-    () =>
-      draft.tasks.reduce((sum, task) => sum + (Number(task.weight) || 0), 0),
+    () => draft.tasks.reduce((sum, task) => sum + (Number(task.weight) || 0), 0),
     [draft.tasks]
   );
 
@@ -114,185 +114,192 @@ export default function GoalFormScreen() {
     <>
       <Stack.Screen options={{ title: existingGoal ? "Edit Goal" : "Add Goal" }} />
       <SafeAreaView style={styles.container}>
-        <ScrollView contentContainerStyle={styles.content}>
-          <Text style={styles.title}>
-            {existingGoal ? "Edit goal" : "Create a new goal"}
-          </Text>
-          <Text style={styles.subtitle}>
-            Add weighted tasks, evidence notes, tags, and target dates.
-          </Text>
-
-          <Field
-            label="Goal title"
-            value={draft.title}
-            onChangeText={(value) => updateDraft("title", value)}
-          />
-          <Field
-            label="Description"
-            value={draft.description}
-            onChangeText={(value) => updateDraft("description", value)}
-            multiline
-          />
-
-          <SelectorRow
-            label="Goal type"
-            options={GOAL_TYPES}
-            value={draft.type}
-            onChange={(value) => updateDraft("type", value as LearningGoal["type"])}
-          />
-
-          <SelectorRow
-            label="Goal status"
-            options={GOAL_STATUSES}
-            value={draft.status}
-            onChange={(value) => updateDraft("status", value as LearningGoal["status"])}
-          />
-
-          <Field
-            label="Start date (YYYY-MM-DD)"
-            value={draft.startDate}
-            onChangeText={(value) => updateDraft("startDate", value)}
-          />
-          <Field
-            label="Target date (YYYY-MM-DD)"
-            value={draft.targetDate}
-            onChangeText={(value) => updateDraft("targetDate", value)}
-          />
-          <Field
-            label="Completion date (YYYY-MM-DD)"
-            value={draft.completionDate}
-            onChangeText={(value) => updateDraft("completionDate", value)}
-          />
-          <Field
-            label="Notes"
-            value={draft.notes}
-            onChangeText={(value) => updateDraft("notes", value)}
-            multiline
-          />
-          <Field
-            label="Tags (comma separated)"
-            value={draft.tags}
-            onChangeText={(value) => updateDraft("tags", value)}
-          />
-
-          <View style={styles.tasksHeader}>
-            <View>
-              <Text style={styles.sectionTitle}>Tasks</Text>
-              <Text style={styles.sectionHint}>Task weights should total 100%.</Text>
-            </View>
-            <Pressable onPress={addTaskDraft} style={styles.secondaryButton}>
-              <Text style={styles.secondaryButtonText}>Add Task</Text>
-            </Pressable>
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          <View style={styles.headerCard}>
+            <Text style={styles.title}>{existingGoal ? "Edit Goal" : "Add Goal"}</Text>
+            <Text style={styles.subtitle}>
+              Create a weighted goal plan with dates, evidence, and task-level detail.
+            </Text>
           </View>
 
-          <Text style={styles.weightText}>Current weight total: {totalWeight}%</Text>
+          <SectionCard>
+            <Field
+              label="Goal title"
+              value={draft.title}
+              onChangeText={(value) => updateDraft("title", value)}
+            />
+            <Field
+              label="Description"
+              value={draft.description}
+              onChangeText={(value) => updateDraft("description", value)}
+              multiline
+            />
 
-          {draft.tasks.map((task, index) => (
-            <View key={task.id} style={styles.taskCard}>
-              <View style={styles.taskCardHeader}>
-                <Text style={styles.taskCardTitle}>Task {index + 1}</Text>
-                <Text onPress={() => removeTaskDraft(task.id)} style={styles.deleteLink}>
-                  Delete
-                </Text>
+            <SelectorRow
+              label="Goal type"
+              options={GOAL_TYPES}
+              value={draft.type}
+              onChange={(value) => updateDraft("type", value as LearningGoal["type"])}
+            />
+
+            <SelectorRow
+              label="Goal status"
+              options={GOAL_STATUSES}
+              value={draft.status}
+              onChange={(value) => updateDraft("status", value as LearningGoal["status"])}
+            />
+
+            <Field
+              label="Start date (YYYY-MM-DD)"
+              value={draft.startDate}
+              onChangeText={(value) => updateDraft("startDate", value)}
+            />
+            <Field
+              label="Target date (YYYY-MM-DD)"
+              value={draft.targetDate}
+              onChangeText={(value) => updateDraft("targetDate", value)}
+            />
+            <Field
+              label="Completion date (YYYY-MM-DD)"
+              value={draft.completionDate}
+              onChangeText={(value) => updateDraft("completionDate", value)}
+            />
+            <Field
+              label="Notes"
+              value={draft.notes}
+              onChangeText={(value) => updateDraft("notes", value)}
+              multiline
+            />
+            <Field
+              label="Tags (comma separated)"
+              value={draft.tags}
+              onChangeText={(value) => updateDraft("tags", value)}
+            />
+          </SectionCard>
+
+          <SectionCard>
+            <View style={styles.tasksHeader}>
+              <View>
+                <Text style={styles.sectionTitle}>Tasks</Text>
+                <Text style={styles.sectionHint}>Task weights should total 100%.</Text>
               </View>
-
-              <Field
-                label="Task title"
-                value={task.title}
-                onChangeText={(value) =>
-                  updateTaskDraft(task.id, (current) => ({ ...current, title: value }))
-                }
-              />
-              <Field
-                label="Details"
-                value={task.details}
-                onChangeText={(value) =>
-                  updateTaskDraft(task.id, (current) => ({ ...current, details: value }))
-                }
-                multiline
-              />
-              <SelectorRow
-                label="Task status"
-                options={TASK_STATUSES}
-                value={task.status}
-                onChange={(value) =>
-                  updateTaskDraft(task.id, (current) => ({
-                    ...current,
-                    status: value as GoalTask["status"],
-                  }))
-                }
-              />
-              <Field
-                label="Progress (0-100)"
-                value={task.progress}
-                keyboardType="number-pad"
-                onChangeText={(value) =>
-                  updateTaskDraft(task.id, (current) => {
-                    const progress = Math.max(0, Math.min(100, Number(value) || 0));
-
-                    return {
-                      ...current,
-                      progress: String(progress),
-                      status:
-                        current.status === "blocked"
-                          ? "blocked"
-                          : getTaskStatusFromProgress(progress),
-                    };
-                  })
-                }
-              />
-              <Field
-                label="Weight percentage"
-                value={task.weight}
-                keyboardType="number-pad"
-                onChangeText={(value) =>
-                  updateTaskDraft(task.id, (current) => ({
-                    ...current,
-                    weight: String(Math.max(0, Number(value) || 0)),
-                  }))
-                }
-              />
-              <Field
-                label="Evidence"
-                value={task.evidence}
-                onChangeText={(value) =>
-                  updateTaskDraft(task.id, (current) => ({ ...current, evidence: value }))
-                }
-                multiline
-              />
-              <Field
-                label="Task tags (comma separated)"
-                value={task.tags}
-                onChangeText={(value) =>
-                  updateTaskDraft(task.id, (current) => ({ ...current, tags: value }))
-                }
-              />
-              <Field
-                label="Task start date (YYYY-MM-DD)"
-                value={task.startDate}
-                onChangeText={(value) =>
-                  updateTaskDraft(task.id, (current) => ({ ...current, startDate: value }))
-                }
-              />
-              <Field
-                label="Task target date (YYYY-MM-DD)"
-                value={task.targetDate}
-                onChangeText={(value) =>
-                  updateTaskDraft(task.id, (current) => ({ ...current, targetDate: value }))
-                }
-              />
-              <Field
-                label="Task completion date (YYYY-MM-DD)"
-                value={task.completionDate}
-                onChangeText={(value) =>
-                  updateTaskDraft(task.id, (current) => ({
-                    ...current,
-                    completionDate: value,
-                  }))
-                }
-              />
+              <Pressable onPress={addTaskDraft} style={styles.secondaryButton}>
+                <Text style={styles.secondaryButtonText}>Add Task</Text>
+              </Pressable>
             </View>
-          ))}
+
+            <View style={styles.weightBanner}>
+              <Text style={styles.weightLabel}>Current allocation</Text>
+              <Text style={styles.weightValue}>{totalWeight}%</Text>
+            </View>
+
+            {draft.tasks.map((task, index) => (
+              <View key={task.id} style={styles.taskCard}>
+                <View style={styles.taskCardHeader}>
+                  <Text style={styles.taskCardTitle}>Task {index + 1}</Text>
+                  <Text onPress={() => removeTaskDraft(task.id)} style={styles.deleteLink}>
+                    Delete
+                  </Text>
+                </View>
+
+                <Field
+                  label="Task title"
+                  value={task.title}
+                  onChangeText={(value) =>
+                    updateTaskDraft(task.id, (current) => ({ ...current, title: value }))
+                  }
+                />
+                <Field
+                  label="Details"
+                  value={task.details}
+                  onChangeText={(value) =>
+                    updateTaskDraft(task.id, (current) => ({ ...current, details: value }))
+                  }
+                  multiline
+                />
+                <SelectorRow
+                  label="Task status"
+                  options={TASK_STATUSES}
+                  value={task.status}
+                  onChange={(value) =>
+                    updateTaskDraft(task.id, (current) => ({
+                      ...current,
+                      status: value as GoalTask["status"],
+                    }))
+                  }
+                />
+                <Field
+                  label="Progress (0-100)"
+                  value={task.progress}
+                  keyboardType="number-pad"
+                  onChangeText={(value) =>
+                    updateTaskDraft(task.id, (current) => {
+                      const progress = Math.max(0, Math.min(100, Number(value) || 0));
+
+                      return {
+                        ...current,
+                        progress: String(progress),
+                        status:
+                          current.status === "blocked"
+                            ? "blocked"
+                            : getTaskStatusFromProgress(progress),
+                      };
+                    })
+                  }
+                />
+                <Field
+                  label="Weight percentage"
+                  value={task.weight}
+                  keyboardType="number-pad"
+                  onChangeText={(value) =>
+                    updateTaskDraft(task.id, (current) => ({
+                      ...current,
+                      weight: String(Math.max(0, Number(value) || 0)),
+                    }))
+                  }
+                />
+                <Field
+                  label="Evidence"
+                  value={task.evidence}
+                  onChangeText={(value) =>
+                    updateTaskDraft(task.id, (current) => ({ ...current, evidence: value }))
+                  }
+                  multiline
+                />
+                <Field
+                  label="Task tags (comma separated)"
+                  value={task.tags}
+                  onChangeText={(value) =>
+                    updateTaskDraft(task.id, (current) => ({ ...current, tags: value }))
+                  }
+                />
+                <Field
+                  label="Task start date (YYYY-MM-DD)"
+                  value={task.startDate}
+                  onChangeText={(value) =>
+                    updateTaskDraft(task.id, (current) => ({ ...current, startDate: value }))
+                  }
+                />
+                <Field
+                  label="Task target date (YYYY-MM-DD)"
+                  value={task.targetDate}
+                  onChangeText={(value) =>
+                    updateTaskDraft(task.id, (current) => ({ ...current, targetDate: value }))
+                  }
+                />
+                <Field
+                  label="Task completion date (YYYY-MM-DD)"
+                  value={task.completionDate}
+                  onChangeText={(value) =>
+                    updateTaskDraft(task.id, (current) => ({
+                      ...current,
+                      completionDate: value,
+                    }))
+                  }
+                />
+              </View>
+            ))}
+          </SectionCard>
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -305,6 +312,10 @@ export default function GoalFormScreen() {
       </SafeAreaView>
     </>
   );
+}
+
+function SectionCard({ children }: { children: React.ReactNode }) {
+  return <View style={styles.sectionCard}>{children}</View>;
 }
 
 function Field({
@@ -329,7 +340,7 @@ function Field({
         style={[styles.input, multiline && styles.multilineInput]}
         multiline={multiline}
         keyboardType={keyboardType}
-        placeholderTextColor="#64748b"
+        placeholderTextColor={colors.inkMuted}
       />
     </View>
   );
@@ -369,38 +380,53 @@ function SelectorRow({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0f172a",
+    backgroundColor: colors.page,
   },
   content: {
     padding: 18,
-    gap: 14,
+    gap: 16,
+    paddingBottom: 32,
+  },
+  headerCard: {
+    backgroundColor: gradients.headerBottom,
+    borderRadius: 28,
+    padding: 20,
+    gap: 8,
   },
   title: {
-    color: "#f8fafc",
-    fontSize: 28,
+    color: "#FFFFFF",
+    fontSize: 30,
     fontWeight: "800",
   },
   subtitle: {
-    color: "#cbd5e1",
+    color: "#D7E2F8",
     fontSize: 15,
     lineHeight: 22,
+  },
+  sectionCard: {
+    backgroundColor: colors.card,
+    borderRadius: 24,
+    padding: 16,
+    gap: 14,
+    borderWidth: 1,
+    borderColor: colors.line,
   },
   fieldGroup: {
     gap: 8,
   },
   label: {
-    color: "#cbd5e1",
+    color: colors.ink,
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   input: {
-    backgroundColor: "#14213d",
-    color: "#f8fafc",
-    borderRadius: 14,
+    backgroundColor: colors.cardMuted,
+    color: colors.ink,
+    borderRadius: 16,
     paddingHorizontal: 14,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: "#223154",
+    borderColor: colors.line,
   },
   multilineInput: {
     minHeight: 96,
@@ -411,8 +437,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   chip: {
-    color: "#cbd5e1",
-    backgroundColor: "#16233f",
+    color: colors.inkSoft,
+    backgroundColor: colors.cardMuted,
     borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -420,47 +446,61 @@ const styles = StyleSheet.create({
     textTransform: "capitalize",
   },
   chipSelected: {
-    backgroundColor: "#2563eb",
-    color: "#f8fafc",
+    backgroundColor: colors.primaryLight,
+    color: colors.primaryDark,
   },
   tasksHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     gap: 12,
-    marginTop: 4,
   },
   sectionTitle: {
-    color: "#f8fafc",
+    color: colors.ink,
     fontSize: 20,
-    fontWeight: "700",
+    fontWeight: "800",
   },
   sectionHint: {
-    color: "#94a3b8",
+    color: colors.inkSoft,
     fontSize: 13,
     marginTop: 4,
   },
   secondaryButton: {
-    backgroundColor: "#1e3a8a",
-    borderRadius: 12,
+    backgroundColor: colors.primaryLight,
+    borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
   secondaryButtonText: {
-    color: "#f8fafc",
+    color: colors.primaryDark,
     fontWeight: "700",
   },
-  weightText: {
-    color: "#cbd5e1",
-    fontSize: 14,
+  weightBanner: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#EEF4FF",
+    borderRadius: 18,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  weightLabel: {
+    color: colors.inkSoft,
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  weightValue: {
+    color: colors.ink,
+    fontSize: 20,
+    fontWeight: "800",
   },
   taskCard: {
-    backgroundColor: "#101a31",
-    borderRadius: 18,
+    backgroundColor: colors.pageAlt,
+    borderRadius: 20,
     padding: 14,
     gap: 12,
     borderWidth: 1,
-    borderColor: "#223154",
+    borderColor: colors.line,
   },
   taskCardHeader: {
     flexDirection: "row",
@@ -468,27 +508,27 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   taskCardTitle: {
-    color: "#f8fafc",
+    color: colors.ink,
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: "800",
   },
   deleteLink: {
-    color: "#f87171",
+    color: colors.danger,
     fontWeight: "700",
   },
   error: {
-    color: "#fca5a5",
+    color: colors.danger,
     fontSize: 14,
+    textAlign: "center",
   },
   primaryButton: {
-    backgroundColor: "#60a5fa",
-    borderRadius: 14,
-    paddingVertical: 14,
+    backgroundColor: colors.primary,
+    borderRadius: 18,
+    paddingVertical: 15,
     alignItems: "center",
-    marginTop: 6,
   },
   primaryButtonText: {
-    color: "#0f172a",
+    color: "#FFFFFF",
     fontWeight: "800",
     fontSize: 16,
   },
